@@ -1,15 +1,26 @@
-// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+
+// Set up dependency injection and logging
+var serviceProvider = new ServiceCollection()
+    .AddLogging(builder =>
+    {
+        builder.AddConsole();
+        builder.SetMinimumLevel(LogLevel.Debug);
+    })
+    .BuildServiceProvider();
+
+var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
 List<int> prices = [5, 5, 2, 5, 5, 7, 9, 1, 5, 6];
 
-var profit = MaxProfitHelper.maxProfit(prices);
-
-Console.WriteLine(profit);
+logger.LogInformation("Starting profit calculation with {count} prices", prices.Count);
+var profit = MaxProfitHelper.maxProfit(prices, logger);
+logger.LogInformation("Calculation complete. Maximum profit: {profit}", profit);
 
 public class MaxProfitHelper
 {
-    public static int maxProfit(List<int> stockPrices)
+    public static int maxProfit(List<int> stockPrices, ILogger logger)
     {
         if (stockPrices == null)
         {
@@ -29,27 +40,28 @@ public class MaxProfitHelper
         var maxProfit = 0;
         var min = stockPrices[0];
 
+        logger.LogInformation("Initial minimum price: {min}", min);
+
         for (int i = 1; i < stockPrices.Count; i++)
         {
             int stockPrice = stockPrices[i];
+            logger.LogDebug("Processing price at index {index}: {price}", i, stockPrice);
 
             if(stockPrice - min > maxProfit)
             {
                 maxProfit = stockPrice - min;
+                logger.LogInformation("New maximum profit found: {profit} (buying at {min}, selling at {price})", 
+                    maxProfit, min, stockPrice);
             }
 
             if(stockPrice < min)
             {
+                logger.LogDebug("New minimum price found: {price} (old min: {oldMin})", stockPrice, min);
                 min = stockPrice;
             }
-
-            Console.WriteLine();
-            Console.WriteLine("-----------");
-            Console.WriteLine($"Price {stockPrice}");
-            Console.WriteLine($"Min {min}");
-            Console.WriteLine($"MaxProfit {maxProfit}");
         }
 
+        logger.LogInformation("Calculation complete. Final maximum profit: {profit}", maxProfit);
         return maxProfit;
     }
 }
