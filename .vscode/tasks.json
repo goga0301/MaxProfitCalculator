@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dotnet new xunit",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"new",
+				"xunit",
+				"-o",
+				"MaxProfitCalculator.Tests"
+			],
+			"group": "build"
+		}
+	]
+}
